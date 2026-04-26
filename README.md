@@ -179,3 +179,7 @@ git checkout large_data.dvc
 # Revert the actual data
 dvc checkout
 ```
+
+### how other users can pull from dvc
+- dvc remote modify --local mygdrive gdrive_client_id your_actual_id
+- dvc remote modify --local mygdrive gdrive_client_secret your_actual_secret
