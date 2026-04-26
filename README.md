@@ -96,3 +96,86 @@ For a teammate to access the project:
 * `dvc push`: Upload data to the cloud.
 * `dvc checkout`: Sync local files to match the current Git branch.
 * `dvc remote modify --local`: Set private credentials safely.
+
+
+
+
+## what to do if you added/modifed local large data file
+
+Here is the technical guide formatted as a Markdown (`.md`) file. You can copy and paste this directly into your project's `CONTRIBUTING.md` or a dedicated `DATA_GUIDE.md`.
+
+---
+
+# Data Update Workflow (DVC & Git)
+
+This guide outlines the standard operating procedure for updating data files within the tracked `large_data/` directory. Because DVC uses "snapshots" rather than live-tracking, these steps must be followed every time the contents of the folder change.
+
+## Prerequisites
+* Ensure you have the latest version of the code and data pointers:
+    ```bash
+    git pull
+    dvc pull
+    ```
+
+---
+
+## Step-by-Step Update Sequence
+
+### 1. Identify Changes
+After adding, deleting, or modifying files inside the `large_data/` folder, verify that DVC detects the modification:
+```bash
+dvc status
+```
+*DVC should report that `large_data` is "modified".*
+
+### 2. Update the DVC Snapshot
+Take a new snapshot of the folder. This updates the local cache and the metadata pointer.
+```bash
+dvc add large_data
+```
+**What this does:**
+* Scans the folder for new/changed files.
+* Hashes the new data and stores it in `.dvc/cache`.
+* Updates `large_data.dvc` with the new folder hash.
+
+
+
+### 3. Record the Version in Git
+Link the new data state to your current code state by committing the updated pointer.
+```bash
+# Stage the updated metadata
+git add large_data.dvc
+
+# Commit the change
+git commit -m "data: added new training samples to large_data"
+```
+
+### 4. Sync to Cloud Storage
+Upload the physical data to Google Drive and the pointers to GitHub so the rest of the team can access the changes.
+```bash
+# Upload data to Google Drive
+dvc push
+
+# Upload pointers to GitHub
+git push origin <your-branch-name>
+```
+
+---
+
+## Troubleshooting & Best Practices
+
+### Why do I need to `dvc add` again?
+DVC does not automatically watch folders for changes. Running `dvc add` is the equivalent of taking a versioned "save point" of your dataset. Without this step, your `.dvc` file will still point to the old version of the folder.
+
+### The "Golden Rule"
+**Never** push your Git code without also running `dvc push`. If a teammate pulls your code but the data hasn't been uploaded to Google Drive, their `dvc pull` will fail with a "File not found" error.
+
+### Reverting Changes
+If you make a mistake and want to revert your local data to the last committed version:
+```bash
+# Revert the pointer file
+git checkout large_data.dvc
+
+# Revert the actual data
+dvc checkout
+```
