@@ -1,0 +1,6 @@
+outs:
+- md5: 1e6b1c49926c295a0df5d0d77f5b155c.dir
+  size: 140
+  nfiles: 1
+  hash: md5
+  path: large_data_files
