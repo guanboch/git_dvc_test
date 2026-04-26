@@ -84,6 +84,7 @@ For a teammate to access the project:
 | **Secret Scanning Block** | Committed `client_secret` to Git | Move secrets to `dvc remote modify --local` and amend the commit. |
 | **Extra Keys Not Allowed** | Syntax error in `.dvc/config` | Use `dvc remote modify --unset` to clear the error, then re-add with correct syntax. |
 | **Permission Denied** | GDrive folder not shared | Ensure the folder is shared with your team's emails (as Editors). |
+| **OAuth2 browser popup despite service account JSON being set** | `gdrive_use_service_account` flag is missing | Run `dvc remote modify --local mygdrive gdrive_use_service_account true`. Having the JSON path alone is not enough. |
 
 
 
@@ -244,6 +245,9 @@ Now, configure DVC to use this "robot" identity instead of your browser.
     ```bash
     # Point DVC to your JSON key
     dvc remote modify --local mygdrive gdrive_service_account_json_file_path /path/to/your/keys/dvc-key.json
+
+    # Tell DVC to actually USE the service account (required — without this, DVC still falls back to OAuth2 browser login)
+    dvc remote modify --local mygdrive gdrive_use_service_account true
     ```
 
 ---
